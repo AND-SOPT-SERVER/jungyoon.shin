@@ -1,20 +1,33 @@
 package org.sopt.seminar1;
 
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicLong;
+
 public class Diary {
 
-    private long id;
-    private String content;
+    private final long id;
+    private String body;
+    private final LocalDateTime createdAt;
 
-    public Diary(final long id, final String content) {
+    private Diary(long id, String body) {
         this.id = id;
-        this.content = content;
+        this.body = body;
+        this.createdAt = LocalDateTime.now();
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public String getContent() {
-        return content;
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public static Diary create(final long id, final String body) {
+        return new Diary(id, body);
     }
 }
