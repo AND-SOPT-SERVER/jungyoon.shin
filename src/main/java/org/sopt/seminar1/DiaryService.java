@@ -1,5 +1,7 @@
 package org.sopt.seminar1;
 
+import org.sopt.seminar1.Main.UI.NotFoundException;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,12 +20,16 @@ public class DiaryService {
         return diary;
     }
 
-    Diary getDiary(final long id) {
-        return diaryRepository.findById(id);
+    Diary findDiary(final long id) {
+        Diary diary = diaryRepository.findById(id);
+        if (diary == null) {
+            throw new NotFoundException("해당 id의 일기를 찾을 수 없습니다.");
+        }
+        return diary;
     }
 
     void patchDiary(final long id, final String body) {
-        Diary diary = getDiary(id);
+        Diary diary = findDiary(id);
         diary.setBody(body);
         diaryRepository.patchDiary(id, diary);
     }
@@ -31,13 +37,13 @@ public class DiaryService {
     void restoreDiary(final long id) {
         Diary diary = diaryRepository.deletedDiary(id);
         if (diary == null) {
-            throw new Main.UI.NotFoundException("해당 id의 일기는 존재하지 않으므로, 복구가 불가능합니다.");
+            throw new NotFoundException("해당 id의 일기는 존재하지 않으므로, 복구가 불가능합니다.");
         }
-        diaryRepository.restoreDiary(id, diaryRepository.deletedDiary(id));
+        diaryRepository.restoreDiary(id, diary);
     }
 
     void deleteDiary(final long id) {
-        diaryRepository.deleteDiary(id, getDiary(id));
+        diaryRepository.deleteDiary(id, findDiary(id));
     }
 
     List<Diary> getDeletedDiaryList() {
