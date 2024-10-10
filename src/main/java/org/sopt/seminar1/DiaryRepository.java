@@ -1,6 +1,6 @@
 package org.sopt.seminar1;
 
-import org.sopt.seminar1.Main.UI.InvalidInputException;
+import org.sopt.seminar1.Main.UI.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,14 +10,23 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DiaryRepository {
 
     private final Map<Long, Diary> storage = new ConcurrentHashMap<>();
+    private final Map<Long, Diary> deletedDiaryList = new ConcurrentHashMap<>();
 
     void saveDiary(final long id, final Diary diary) {
-
         storage.put(id, diary);
     }
 
+    Diary deletedDiary(final long id) {
+        if(!deletedDiaryList.containsKey(id)) {
+            return null;
+        }
+        return deletedDiaryList.get(id);
+    }
+
     Diary findById(long id) {
-        validateDairyExists(id);
+        if(!storage.containsKey(id)) {
+            throw new NotFoundException("해당 id의 일기는 존재하지 않습니다.");
+        }
         return storage.get(id);
     }
 
@@ -30,20 +39,25 @@ public class DiaryRepository {
     }
 
     void patchDiary(final long id, final Diary diary) {
-        validateDairyExists(id);
-        storage.put(id, diary);
+        storage.put(findById(id).getId(), diary);
     }
 
-    void deleteDiary(final long id) {
-        validateDairyExists(id);
+    void deleteDiary(final long id, final Diary diary) {
+        deletedDiaryList.put(findById(id).getId(), diary);
         storage.remove(id);
     }
 
-    void validateDairyExists(final long id) {
-        if(!storage.containsKey(id)) {
-            throw new InvalidInputException("해당 id의 일기는 존재하지 않습니다.");
+    List<Diary> getDeletedDiaryList() {
+        List<Diary> diaryList = new ArrayList<>();
+        for (Long key : deletedDiaryList.keySet()) {
+            diaryList.add(deletedDiaryList.get(key));
         }
+        return diaryList;
     }
 
+    void restoreDiary(final long id, final Diary diary) {
+        storage.put(id, diary);
+        deletedDiaryList.remove(id);
+    }
 
 }

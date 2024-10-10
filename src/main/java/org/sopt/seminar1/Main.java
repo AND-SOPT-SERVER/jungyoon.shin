@@ -27,10 +27,19 @@ public class Main {
             }
         }
 
+        class NotFoundException extends RuntimeException {
+            public NotFoundException(String message) { super(message); }
+        }
+
         class InvalidInputException extends UIException {
             public InvalidInputException(String message) {
                 super(message);
             }
+        }
+
+        class DiaryNotFoundException extends NotFoundException  {
+
+            public DiaryNotFoundException(String message) { super(message); }
         }
     }
 
@@ -105,6 +114,20 @@ public class Main {
                             final String input = ConsoleIO.readLine();
                             server.delete(input);
                         }
+                        case "POST(2)" -> {
+                            ConsoleIO.printLine("삭제된 일기 목록입니다.");
+                            server.getDeletedDiaryList().forEach(diary -> {
+                                try {
+                                    ConsoleIO.printLine(diary.getId() + " : " + diary.getBody());
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+
+                            ConsoleIO.printLine("복구할 id 를 입력하세요!");
+                            final String input = ConsoleIO.readLine();
+                            server.restoreDiary(input);
+                        }
 
                         case "FINISH" -> {
                             server.finish();
@@ -138,6 +161,7 @@ public class Main {
                     - POST : 일기 작성하기
                     - DELETE : 일기 제거하기
                     - PATCH : 일기 수정하기
+                    - POST(2) : 삭제된 일기 복구하기
                     """;
         }
 
@@ -152,6 +176,7 @@ public class Main {
 
     // not thread safe
     private static class ConsoleIO {
+
         private final static BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(System.out));
         private final static BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         private final static StringBuilder sb = new StringBuilder();
