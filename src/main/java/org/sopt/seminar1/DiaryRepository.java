@@ -1,7 +1,5 @@
 package org.sopt.seminar1;
 
-import org.sopt.seminar1.Main.UI.NotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,15 +15,15 @@ public class DiaryRepository {
     }
 
     Diary deletedDiary(final long id) {
-        if(!deletedDiaryList.containsKey(id)) {
+        if (!deletedDiaryList.containsKey(id)) {
             return null;
         }
         return deletedDiaryList.get(id);
     }
 
     Diary findById(long id) {
-        if(!storage.containsKey(id)) {
-            throw new NotFoundException("해당 id의 일기는 존재하지 않습니다.");
+        if (!storage.containsKey(id)) {
+            return null;
         }
         return storage.get(id);
     }
