@@ -1,5 +1,8 @@
 package org.sopt.seminar1;
 
+import org.sopt.seminar1.Main.Exception.InvalidInputException;
+import org.sopt.seminar1.Main.Exception.UIException;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -18,29 +21,33 @@ public class Main {
         }
     }
 
-    interface UI {
-        void runRepeatedly() throws IOException;
+    static class Exception {
 
-        class UIException extends RuntimeException {
+        static class UIException extends RuntimeException {
             public UIException(String message) {
                 super(message);
             }
         }
 
-        class NotFoundException extends RuntimeException {
+        static class NotFoundException extends RuntimeException {
             public NotFoundException(String message) { super(message); }
         }
 
-        class InvalidInputException extends UIException {
+        static class InvalidInputException extends UIException {
             public InvalidInputException(String message) {
                 super(message);
             }
         }
 
-        class DiaryNotFoundException extends NotFoundException  {
+        static class DiaryNotFoundException extends NotFoundException  {
 
             public DiaryNotFoundException(String message) { super(message); }
         }
+    }
+
+    interface UI {
+        void runRepeatedly() throws IOException;
+
     }
 
     static class DiaryUI implements UI {

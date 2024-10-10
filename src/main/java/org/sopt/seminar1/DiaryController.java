@@ -1,6 +1,6 @@
 package org.sopt.seminar1;
 
-import org.sopt.seminar1.Main.UI.InvalidInputException;
+import org.sopt.seminar1.Main.Exception.InvalidInputException;
 
 import java.util.List;
 
