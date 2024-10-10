@@ -40,7 +40,6 @@ public class Main {
         }
 
         static class DiaryNotFoundException extends NotFoundException  {
-
             public DiaryNotFoundException(String message) { super(message); }
         }
     }
