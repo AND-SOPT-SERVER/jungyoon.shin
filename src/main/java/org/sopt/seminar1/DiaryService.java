@@ -23,12 +23,25 @@ public class DiaryService {
     }
 
     void patchDiary(final long id, final String body) {
-        Diary diary = diaryRepository.findById(id);
+        Diary diary = getDiary(id);
         diary.setBody(body);
         diaryRepository.patchDiary(id, diary);
     }
 
-    void deleteDiary(final long id) {
-        diaryRepository.deleteDiary(id);
+    void restoreDiary(final long id) {
+        Diary diary = diaryRepository.deletedDiary(id);
+        if (diary == null) {
+            throw new Main.UI.NotFoundException("해당 id의 일기는 존재하지 않으므로, 복구가 불가능합니다.");
+        }
+        diaryRepository.restoreDiary(id, diaryRepository.deletedDiary(id));
     }
+
+    void deleteDiary(final long id) {
+        diaryRepository.deleteDiary(id, getDiary(id));
+    }
+
+    List<Diary> getDeletedDiaryList() {
+        return diaryRepository.getDeletedDiaryList();
+    }
+
 }

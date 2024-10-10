@@ -40,6 +40,14 @@ public class DiaryController {
         diaryService.patchDiary(convertIdType(id), body);
     }
 
+    final List<Diary> getDeletedDiaryList() {
+        return diaryService.getDeletedDiaryList();
+    }
+
+    final void restoreDiary(final String id) {
+        diaryService.restoreDiary(convertIdType(id));
+    }
+
     private long convertIdType(final String id) {
         try {
             return Long.parseLong(id);
