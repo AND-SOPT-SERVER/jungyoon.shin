@@ -57,7 +57,7 @@ public class DiaryController {
     }
 
     private void checkBodyLength(final String body) {
-        if (body.length() > 30) {
+        if (TextUtil.getLengthOfEmojiContainableText(body) > 30) {
             throw new InvalidInputException("일기 내용은 30자 이하만 가능합니다.");
         }
     }
