@@ -7,12 +7,13 @@ public class Diary {
 
     private final long id;
     private String body;
-    private final LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private int updateCount = 0;
 
     private Diary(long id, String body) {
         this.id = id;
         this.body = body;
-        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -23,8 +24,15 @@ public class Diary {
         return body;
     }
 
-    public void setBody(String body) {
+    public int getUpdateCount() { return updateCount; }
+
+    public void updateBody(String body) {
+        if (updatedAt.getDayOfMonth() < LocalDateTime.now().getDayOfMonth()) {
+            updateCount = 0;
+        }
         this.body = body;
+        this.updatedAt = LocalDateTime.now();
+        this.updateCount += 1;
     }
 
     public static Diary create(final long id, final String body) {
