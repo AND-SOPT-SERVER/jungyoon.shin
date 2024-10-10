@@ -27,6 +27,7 @@ public class DiaryController {
     }
 
     final void post(final String body) {
+        checkBodyLength(body);
         diaryService.saveDiary(body);
     }
 
@@ -35,6 +36,7 @@ public class DiaryController {
     }
 
     final void patch(final String id, final String body) {
+        checkBodyLength(body);
         diaryService.patchDiary(convertIdType(id), body);
     }
 
@@ -43,6 +45,12 @@ public class DiaryController {
             return Long.parseLong(id);
         } catch (NumberFormatException ex) {
             throw new InvalidInputException("id값은 숫자만 가능합니다.");
+        }
+    }
+
+    private void checkBodyLength(final String body) {
+        if (body.length() > 30) {
+            throw new InvalidInputException("일기 내용은 30자 이하만 가능합니다.");
         }
     }
 
