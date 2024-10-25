@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
+import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
 import org.sopt.seminar2.diary.service.DiaryService;
 
 import org.springframework.http.ResponseEntity;
@@ -37,5 +38,12 @@ public class DiaryController {
         DiaryDetailResponse diaryDetailResponse = diaryService.getDiary(diaryId);
         return ResponseEntity.ok().body(diaryDetailResponse);
     }
+
+    @GetMapping("/diary")
+    public ResponseEntity<DiaryListResponse> getDiaryList() {
+        DiaryListResponse diaryListResponse = diaryService.getDiaryList();
+        return ResponseEntity.ok().body(diaryListResponse);
+    }
+
 
 }
