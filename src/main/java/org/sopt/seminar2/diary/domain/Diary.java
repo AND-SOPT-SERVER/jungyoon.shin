@@ -43,4 +43,8 @@ public class Diary {
                 .build();
     }
 
+    public void updateDiary(final String content) {
+        this.content = content;
+    }
+
 }
