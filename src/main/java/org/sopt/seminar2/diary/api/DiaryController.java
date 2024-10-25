@@ -1,5 +1,6 @@
 package org.sopt.seminar2.diary.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
@@ -23,7 +24,7 @@ public class DiaryController {
 
     @PostMapping("/diary")
     public ResponseEntity<Void> postDiary(
-            @RequestBody DiaryCreateRequest diaryCreateRequest
+            @Valid @RequestBody DiaryCreateRequest diaryCreateRequest
     ) {
         diaryService.postDiary(diaryCreateRequest);
         return ResponseEntity.ok().build();
