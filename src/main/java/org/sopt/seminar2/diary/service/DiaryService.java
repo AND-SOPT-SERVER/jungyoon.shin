@@ -18,7 +18,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
@@ -28,7 +27,7 @@ public class DiaryService {
         diaryRepository.save(diary);
     }
 
-    @Transactional(readOnly = true)
+
     public DiaryDetailResponse getDiary(final long id) {
         Diary diary = findDiary(id);
 
@@ -40,7 +39,6 @@ public class DiaryService {
         );
     }
 
-    @Transactional(readOnly = true)
     public DiaryListResponse getDiaryList() {
         List<Diary> diaries = diaryRepository.findAllByOrderByCreatedAtDesc();
         List<DiaryListResponse.DiaryResponse> diaryDetailResponses = diaries.stream()
@@ -50,6 +48,7 @@ public class DiaryService {
         return DiaryListResponse.of(diaryDetailResponses);
     }
 
+    @Transactional
     public void updateDiary(final long id, final DiaryUpdateRequest diaryUpdateRequest) {
         findDiary(id).updateDiary(diaryUpdateRequest.content());
     }
@@ -58,7 +57,6 @@ public class DiaryService {
         diaryRepository.delete(findDiary(id));
     }
 
-    @Transactional
     public Diary findDiary(final long id) {
         return diaryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("id에 해당하는 다이어리가 없습니다."));
