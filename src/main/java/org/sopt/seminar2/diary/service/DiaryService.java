@@ -7,6 +7,7 @@ import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
 import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
 import org.sopt.seminar2.diary.common.code.FailureCode;
+import org.sopt.seminar2.diary.common.exception.DiaryException;
 import org.sopt.seminar2.diary.common.exception.UserException;
 import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
 import org.sopt.seminar2.diary.domain.Diary;
@@ -20,8 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static org.sopt.seminar2.diary.common.code.FailureCode.NOT_EXISTS_USER;
-import static org.sopt.seminar2.diary.common.code.FailureCode.NOT_MATCH_PASSWORD;
+import static org.sopt.seminar2.diary.common.code.FailureCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,17 +58,29 @@ public class DiaryService {
     }
 
     @Transactional
-    public void updateDiary(final long id, final DiaryUpdateRequest diaryUpdateRequest) {
-        findDiary(id).updateDiary(diaryUpdateRequest.content());
+    public void updateDiary(
+            final long id,
+            final DiaryUpdateRequest diaryUpdateRequest,
+            final String username,
+            final String password
+    ) {
+        User user = findUser(username, password);
+        findDiaryWithUser(id, user).updateDiary(diaryUpdateRequest.content());
     }
 
-    public void deleteDiary(final long id) {
-        diaryRepository.delete(findDiary(id));
+    public void deleteDiary(final long id, final String username, final String password) {
+        User user = findUser(username, password);
+        diaryRepository.delete(findDiaryWithUser(id, user));
+    }
+
+    public Diary findDiaryWithUser(final long id, final User user) {
+        return diaryRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID_AND_USER));
     }
 
     public Diary findDiary(final long id) {
         return diaryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("id에 해당하는 다이어리가 없습니다."));
+                .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID));
     }
 
     public User findUser(final String username, final String password) {
