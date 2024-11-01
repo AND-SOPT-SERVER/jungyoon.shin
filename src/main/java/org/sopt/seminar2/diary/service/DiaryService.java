@@ -1,29 +1,38 @@
 package org.sopt.seminar2.diary.service;
 
 import jakarta.persistence.EntityNotFoundException;
+
 import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
 import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
 import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
+import org.sopt.seminar2.diary.common.code.FailureCode;
+import org.sopt.seminar2.diary.common.exception.UserException;
+import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
 import org.sopt.seminar2.diary.domain.Diary;
+import org.sopt.seminar2.diary.domain.User;
 
+import org.sopt.seminar2.diary.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+
+import static org.sopt.seminar2.diary.common.code.FailureCode.NOT_EXISTS_USER;
+import static org.sopt.seminar2.diary.common.code.FailureCode.NOT_MATCH_PASSWORD;
 
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
+    private final UserRepository userRepository;
 
-    public void postDiary(final DiaryCreateRequest diaryCreateRequest) {
-        Diary diary = Diary.create(diaryCreateRequest.title(), diaryCreateRequest.content());
+    public void postDiary(final DiaryCreateRequest diaryCreateRequest, final String username, final String password) {
+        User user = findUser(username, password);
+        Diary diary = Diary.create(user, diaryCreateRequest.title(), diaryCreateRequest.content());
         diaryRepository.save(diary);
     }
 
@@ -60,5 +69,16 @@ public class DiaryService {
     public Diary findDiary(final long id) {
         return diaryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("id에 해당하는 다이어리가 없습니다."));
+    }
+
+    public User findUser(final String username, final String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserException(NOT_EXISTS_USER));
+
+        if (!user.getPassword().equals(password)) {
+            throw new UserException(NOT_MATCH_PASSWORD);
+        }
+
+        return user;
     }
 }

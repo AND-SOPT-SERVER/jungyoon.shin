@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DiaryException.class)
+    @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleDiaryException(ApiException e) {
         log.error("[DairyException] 발생 : {}" , e.getMessage());
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,9 +30,11 @@ public class DiaryController {
 
     @PostMapping("/diary")
     public ResponseEntity<Void> postDiary(
-            @Valid @RequestBody DiaryCreateRequest diaryCreateRequest
+            @Valid @RequestBody DiaryCreateRequest diaryCreateRequest,
+            @RequestHeader("username") String username,
+            @RequestHeader("password") String password
     ) {
-        diaryService.postDiary(diaryCreateRequest);
+        diaryService.postDiary(diaryCreateRequest, username, password);
         return ResponseEntity.ok().build();
     }
 

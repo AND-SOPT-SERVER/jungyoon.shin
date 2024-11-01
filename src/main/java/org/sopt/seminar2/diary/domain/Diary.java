@@ -1,5 +1,7 @@
 package org.sopt.seminar2.diary.domain;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import org.sopt.seminar2.diary.domain.enums.Category;
 
 import jakarta.persistence.Column;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static lombok.AccessLevel.PROTECTED;
 
 @Entity
@@ -26,6 +29,10 @@ public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(unique = true, nullable = false)
     private String title;
@@ -39,14 +46,16 @@ public class Diary {
     private LocalDateTime createdAt;
 
     @Builder
-    private Diary(final String title, final String content) {
+    private Diary(final User user, final String title, final String content) {
+        this.user = user;
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
     }
 
-    public static Diary create(final String title, final String content) {
+    public static Diary create(final User user, final String title, final String content) {
         return Diary.builder()
+                .user(user)
                 .title(title)
                 .content(content)
                 .build();
