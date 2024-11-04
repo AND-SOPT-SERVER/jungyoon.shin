@@ -35,7 +35,7 @@ public class DiaryService {
             final String password
     ) {
         User user = findUser(username, password);
-        Diary diary = Diary.create(user, title, content);
+        Diary diary = Diary.create(user, title, content, category);
         diaryRepository.save(diary);
     }
 
@@ -50,8 +50,8 @@ public class DiaryService {
         );
     }
 
-    public DiaryListResponse getDiaryList() {
-        List<Diary> diaries = diaryRepository.findAllByOrderByCreatedAtDesc();
+    public DiaryListResponse getDiaryList(final Category category) {
+        List<Diary> diaries = diaryRepository.findTop10ByCategory(category);
         List<DiaryListResponse.DiaryResponse> diaryDetailResponses = diaries.stream()
                 .map(diary -> DiaryListResponse.DiaryResponse.of(diary.getId(), diary.getTitle()))
                 .toList();

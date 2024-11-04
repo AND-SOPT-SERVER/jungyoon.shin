@@ -18,6 +18,9 @@ public enum Category {
     private final String name;
 
     public static Category findCategory(String name) {
+        if (name == null) {
+            return null;
+        }
         return Arrays.stream(Category.values()).filter(category -> category.name.equals(name)).findAny()
                 .orElseThrow(() -> new DiaryException(NOT_EXISTS_CATEGORY));
     }

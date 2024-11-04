@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCCESS_CREATE_DIARY;
@@ -66,8 +67,10 @@ public class DiaryController {
 
     // 메인 홈
     @GetMapping("/diary")
-    public ResponseEntity<DiaryListResponse> getDiaryList() {
-        DiaryListResponse diaryListResponse = diaryService.getDiaryList();
+    public ResponseEntity<DiaryListResponse> getDiaryList(
+            @RequestParam(required = false) String category
+    ) {
+        DiaryListResponse diaryListResponse = diaryService.getDiaryList(Category.findCategory(category));
         return ResponseEntity.ok().body(diaryListResponse);
     }
 
