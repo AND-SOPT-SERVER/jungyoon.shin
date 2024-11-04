@@ -18,5 +18,10 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
             "ORDER BY d.createdAt DESC")
     List<Diary> findTop10ByCategory(@Param("category") Category category);
 
+    @Query("SELECT d FROM Diary d " +
+            "WHERE (:category IS NULL OR d.category = :category) AND (d.user = :user)" +
+            "ORDER BY d.createdAt DESC")
+    List<Diary> findTop10ByCategoryAndUser(@Param("category") Category category, @Param("user") User user);
+
     Optional<Diary> findByIdAndUser(Long id, User user);
 }

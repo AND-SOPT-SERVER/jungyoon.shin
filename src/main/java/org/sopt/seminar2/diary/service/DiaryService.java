@@ -51,12 +51,12 @@ public class DiaryService {
     }
 
     public DiaryListResponse getDiaryList(final Category category) {
-        List<Diary> diaries = diaryRepository.findTop10ByCategory(category);
-        List<DiaryListResponse.DiaryResponse> diaryDetailResponses = diaries.stream()
-                .map(diary -> DiaryListResponse.DiaryResponse.of(diary.getId(), diary.getTitle()))
-                .toList();
+        return DiaryListResponse.of(getDiaries(category, null));
+    }
 
-        return DiaryListResponse.of(diaryDetailResponses);
+    public DiaryListResponse getMyDiaryList(final Category category, final String username, final String password) {
+        User user = findUser(username, password);
+        return DiaryListResponse.of(getDiaries(category, user));
     }
 
     @Transactional
@@ -75,17 +75,17 @@ public class DiaryService {
         diaryRepository.delete(findDiaryWithUser(id, user));
     }
 
-    public Diary findDiaryWithUser(final long id, final User user) {
+    private Diary findDiaryWithUser(final long id, final User user) {
         return diaryRepository.findByIdAndUser(id, user)
                 .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID_AND_USER));
     }
 
-    public Diary findDiary(final long diaryId) {
+    private Diary findDiary(final long diaryId) {
         return diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID));
     }
 
-    public User findUser(final String username, final String password) {
+    private User findUser(final String username, final String password) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserException(NOT_EXISTS_USER));
 
@@ -95,4 +95,17 @@ public class DiaryService {
 
         return user;
     }
+
+    private List<DiaryListResponse.DiaryResponse> getDiaries(final Category category, final User user) {
+        List<Diary> diaries;
+        if (user == null) {
+            diaries = diaryRepository.findTop10ByCategory(category);
+        } else {
+            diaries = diaryRepository.findTop10ByCategoryAndUser(category, user);
+        }
+        return diaries.stream()
+                .map(diary -> DiaryListResponse.DiaryResponse.of(diary.getId(), diary.getTitle()))
+                .toList();
+    }
+
 }

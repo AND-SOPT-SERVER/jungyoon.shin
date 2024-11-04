@@ -74,6 +74,17 @@ public class DiaryController {
         return ResponseEntity.ok().body(diaryListResponse);
     }
 
+    // 내 일기 모아보기
+    @GetMapping("/mypage/diary")
+    public ResponseEntity<DiaryListResponse> getMyDairyList(
+            @RequestHeader(USERNAME_HEADER) String username,
+            @RequestHeader(PASSWORD_HEADER) String password,
+            @RequestParam(required = false) String category
+    ) {
+        DiaryListResponse diaryListResponse = diaryService.getMyDiaryList(Category.findCategory(category), username, password);
+        return ResponseEntity.ok().body(diaryListResponse);
+    }
+
     // 일기 삭제
     @DeleteMapping("/diary/{diaryId}")
     @CheckUserAuth
