@@ -78,8 +78,8 @@ public class DiaryService {
                 .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID_AND_USER));
     }
 
-    public Diary findDiary(final long id) {
-        return diaryRepository.findById(id)
+    public Diary findDiary(final long diaryId) {
+        return diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID));
     }
 

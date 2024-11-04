@@ -4,9 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sopt.seminar2.diary.common.code.FailureCode;
 import org.sopt.seminar2.diary.common.dto.ErrorResponse;
-
 import org.sopt.seminar2.diary.common.exception.ApiException;
-import org.sopt.seminar2.diary.common.exception.DiaryException;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -19,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleDiaryException(ApiException e) {
-        log.error("[DairyException] 발생 : {}" , e.getMessage());
+        log.error(e.getMessage());
 
         FailureCode failureCode = e.getFailureCode();
         return ResponseEntity.status(failureCode.getHttpStatus())

@@ -1,8 +1,9 @@
-package org.sopt.seminar2.diary.api;
+package org.sopt.seminar2.diary.api.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.sopt.seminar2.diary.api.annotation.CheckUserAuth;
 import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
 import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
@@ -21,34 +22,42 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCESS_CREATE_DIARY;
+import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCCESS_CREATE_DIARY;
+import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCCESS_GET_DIARY_DETAIL;
+import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCCESS_DELETE_DIARY;
+import static org.sopt.seminar2.diary.common.code.SuccessCode.SUCCESS_UPDATE_DIARY;
+
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class DiaryController {
 
+    private final String USERNAME_HEADER = "username";
+    private final String PASSWORD_HEADER = "password";
+
     private final DiaryService diaryService;
 
     @PostMapping("/diary")
     public ResponseEntity<SuccessResponse> postDiary(
             @Valid @RequestBody DiaryCreateRequest diaryCreateRequest,
-            @RequestHeader("username") String username,
-            @RequestHeader("password") String password
+            @RequestHeader(USERNAME_HEADER) String username,
+            @RequestHeader(PASSWORD_HEADER) String password
     ) {
         diaryService.postDiary(diaryCreateRequest, username, password);
-        return ResponseEntity.ok(SuccessResponse.of(SUCESS_CREATE_DIARY));
+        return ResponseEntity.ok(SuccessResponse.of(SUCCESS_CREATE_DIARY));
     }
 
     // 일기 상세 조회
     @GetMapping("/diary/{diaryId}")
-    public ResponseEntity<DiaryDetailResponse> getDiary(
+    public ResponseEntity<SuccessResponse<DiaryDetailResponse>> getDiary(
             @PathVariable long diaryId
     ) {
         DiaryDetailResponse diaryDetailResponse = diaryService.getDiary(diaryId);
-        return ResponseEntity.ok().body(diaryDetailResponse);
+        return ResponseEntity.ok(SuccessResponse.of(SUCCESS_GET_DIARY_DETAIL, diaryDetailResponse));
     }
 
+    // 메인 홈
     @GetMapping("/diary")
     public ResponseEntity<DiaryListResponse> getDiaryList() {
         DiaryListResponse diaryListResponse = diaryService.getDiaryList();
@@ -56,24 +65,26 @@ public class DiaryController {
     }
 
     @DeleteMapping("/diary/{diaryId}")
-    public ResponseEntity<Void> deleteDiary(
+    @CheckUserAuth
+    public ResponseEntity<SuccessResponse> deleteDiary(
             @PathVariable long diaryId,
-            @RequestHeader("username") String username,
-            @RequestHeader("password") String password
+            @RequestHeader(USERNAME_HEADER) String username,
+            @RequestHeader(PASSWORD_HEADER) String password
     ) {
         diaryService.deleteDiary(diaryId, username, password);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(SuccessResponse.of(SUCCESS_DELETE_DIARY));
     }
 
     @PatchMapping("/diary/{diaryId}")
-    public ResponseEntity<Void> updateDiary(
+    @CheckUserAuth
+    public ResponseEntity<SuccessResponse> updateDiary(
             @PathVariable long diaryId,
-            @RequestHeader("username") String username,
-            @RequestHeader("password") String password,
+            @RequestHeader(USERNAME_HEADER) String username,
+            @RequestHeader(PASSWORD_HEADER) String password,
             @RequestBody DiaryUpdateRequest diaryUpdateRequest
     ) {
         diaryService.updateDiary(diaryId, diaryUpdateRequest, username, password);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(SuccessResponse.of(SUCCESS_UPDATE_DIARY));
     }
 
 }
