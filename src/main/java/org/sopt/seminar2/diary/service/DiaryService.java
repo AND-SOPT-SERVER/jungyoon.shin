@@ -1,32 +1,43 @@
 package org.sopt.seminar2.diary.service;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
-import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
 import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
+import org.sopt.seminar2.diary.common.exception.DiaryException;
+import org.sopt.seminar2.diary.common.exception.UserException;
+import org.sopt.seminar2.diary.domain.enums.Category;
+import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
+import org.sopt.seminar2.diary.domain.repository.UserRepository;
+
 import org.sopt.seminar2.diary.domain.Diary;
+import org.sopt.seminar2.diary.domain.User;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
-
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+
+import static org.sopt.seminar2.diary.common.code.FailureCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
+    private final UserRepository userRepository;
 
-    public void postDiary(final DiaryCreateRequest diaryCreateRequest) {
-        Diary diary = Diary.create(diaryCreateRequest.title(), diaryCreateRequest.content());
+    public void postDiary(
+            final String title,
+            final String content,
+            final Category category,
+            final String username,
+            final String password
+    ) {
+        User user = findUser(username, password);
+        Diary diary = Diary.create(user, title, content, category);
         diaryRepository.save(diary);
     }
-
 
     public DiaryDetailResponse getDiary(final long id) {
         Diary diary = findDiary(id);
@@ -39,26 +50,62 @@ public class DiaryService {
         );
     }
 
-    public DiaryListResponse getDiaryList() {
-        List<Diary> diaries = diaryRepository.findAllByOrderByCreatedAtDesc();
-        List<DiaryListResponse.DiaryResponse> diaryDetailResponses = diaries.stream()
-                .map(diary -> DiaryListResponse.DiaryResponse.of(diary.getId(), diary.getTitle()))
-                .toList();
+    public DiaryListResponse getDiaryList(final Category category) {
+        return DiaryListResponse.of(getDiaries(category, null));
+    }
 
-        return DiaryListResponse.of(diaryDetailResponses);
+    public DiaryListResponse getMyDiaryList(final Category category, final String username, final String password) {
+        User user = findUser(username, password);
+        return DiaryListResponse.of(getDiaries(category, user));
     }
 
     @Transactional
-    public void updateDiary(final long id, final DiaryUpdateRequest diaryUpdateRequest) {
-        findDiary(id).updateDiary(diaryUpdateRequest.content());
+    public void updateDiary(
+            final long id,
+            final String content,
+            final String username,
+            final String password
+    ) {
+        User user = findUser(username, password);
+        findDiaryWithUser(id, user).updateDiary(content);
     }
 
-    public void deleteDiary(final long id) {
-        diaryRepository.delete(findDiary(id));
+    public void deleteDiary(final long id, final String username, final String password) {
+        User user = findUser(username, password);
+        diaryRepository.delete(findDiaryWithUser(id, user));
     }
 
-    public Diary findDiary(final long id) {
-        return diaryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("id에 해당하는 다이어리가 없습니다."));
+    private Diary findDiaryWithUser(final long id, final User user) {
+        return diaryRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID_AND_USER));
     }
+
+    private Diary findDiary(final long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException(NOT_EXISTS_DIARY_WITH_ID));
+    }
+
+    private User findUser(final String username, final String password) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserException(NOT_EXISTS_USER));
+
+        if (!user.getPassword().equals(password)) {
+            throw new UserException(NOT_MATCH_PASSWORD);
+        }
+
+        return user;
+    }
+
+    private List<DiaryListResponse.DiaryResponse> getDiaries(final Category category, final User user) {
+        List<Diary> diaries;
+        if (user == null) {
+            diaries = diaryRepository.findTop10ByCategory(category);
+        } else {
+            diaries = diaryRepository.findTop10ByCategoryAndUser(category, user);
+        }
+        return diaries.stream()
+                .map(diary -> DiaryListResponse.DiaryResponse.of(diary.getId(), diary.getTitle()))
+                .toList();
+    }
+
 }
