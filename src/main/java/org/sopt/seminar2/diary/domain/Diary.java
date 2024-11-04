@@ -46,18 +46,30 @@ public class Diary {
     private LocalDateTime createdAt;
 
     @Builder
-    private Diary(final User user, final String title, final String content) {
+    private Diary(
+            final User user,
+            final String title,
+            final String content,
+            final Category category
+    ) {
         this.user = user;
         this.title = title;
         this.content = content;
         this.createdAt = LocalDateTime.now();
+        this.category = category;
     }
 
-    public static Diary create(final User user, final String title, final String content) {
+    public static Diary create(
+            final User user,
+            final String title,
+            final String content,
+            final Category category
+    ) {
         return Diary.builder()
                 .user(user)
                 .title(title)
                 .content(content)
+                .category(category)
                 .build();
     }
 

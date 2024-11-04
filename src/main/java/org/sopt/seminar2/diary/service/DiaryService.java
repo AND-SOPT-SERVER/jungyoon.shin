@@ -1,19 +1,16 @@
 package org.sopt.seminar2.diary.service;
 
-import jakarta.persistence.EntityNotFoundException;
-
-import org.sopt.seminar2.diary.api.dto.request.DiaryCreateRequest;
-import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
 import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
-import org.sopt.seminar2.diary.common.code.FailureCode;
 import org.sopt.seminar2.diary.common.exception.DiaryException;
 import org.sopt.seminar2.diary.common.exception.UserException;
+import org.sopt.seminar2.diary.domain.enums.Category;
 import org.sopt.seminar2.diary.domain.repository.DiaryRepository;
+import org.sopt.seminar2.diary.domain.repository.UserRepository;
+
 import org.sopt.seminar2.diary.domain.Diary;
 import org.sopt.seminar2.diary.domain.User;
 
-import org.sopt.seminar2.diary.domain.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +27,17 @@ public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final UserRepository userRepository;
 
-    public void postDiary(final DiaryCreateRequest diaryCreateRequest, final String username, final String password) {
+    public void postDiary(
+            final String title,
+            final String content,
+            final Category category,
+            final String username,
+            final String password
+    ) {
         User user = findUser(username, password);
-        Diary diary = Diary.create(user, diaryCreateRequest.title(), diaryCreateRequest.content());
+        Diary diary = Diary.create(user, title, content);
         diaryRepository.save(diary);
     }
-
 
     public DiaryDetailResponse getDiary(final long id) {
         Diary diary = findDiary(id);
@@ -60,12 +62,12 @@ public class DiaryService {
     @Transactional
     public void updateDiary(
             final long id,
-            final DiaryUpdateRequest diaryUpdateRequest,
+            final String content,
             final String username,
             final String password
     ) {
         User user = findUser(username, password);
-        findDiaryWithUser(id, user).updateDiary(diaryUpdateRequest.content());
+        findDiaryWithUser(id, user).updateDiary(content);
     }
 
     public void deleteDiary(final long id, final String username, final String password) {

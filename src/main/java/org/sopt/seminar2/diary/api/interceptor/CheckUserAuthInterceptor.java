@@ -34,9 +34,11 @@ public class CheckUserAuthInterceptor implements HandlerInterceptor {
 
     private final DiaryRepository diaryRepository;
     private final UserRepository userRepository;
+
     @Override
     @Transactional
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
         // Handler가 메소드인 경우에만 진행
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
@@ -59,7 +61,6 @@ public class CheckUserAuthInterceptor implements HandlerInterceptor {
                 if (!isOwner) {
                     throw new UserException(NO_PERMISSON_FOR_DAIRY);
                 }
-
             }
         }
         return true;

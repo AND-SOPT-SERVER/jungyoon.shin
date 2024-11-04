@@ -9,6 +9,7 @@ import org.sopt.seminar2.diary.api.dto.request.DiaryUpdateRequest;
 import org.sopt.seminar2.diary.api.dto.response.DiaryDetailResponse;
 import org.sopt.seminar2.diary.api.dto.response.DiaryListResponse;
 import org.sopt.seminar2.diary.common.dto.SuccessResponse;
+import org.sopt.seminar2.diary.domain.enums.Category;
 import org.sopt.seminar2.diary.service.DiaryService;
 
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,13 @@ public class DiaryController {
             @RequestHeader(USERNAME_HEADER) String username,
             @RequestHeader(PASSWORD_HEADER) String password
     ) {
-        diaryService.postDiary(diaryCreateRequest, username, password);
+        diaryService.postDiary(
+                diaryCreateRequest.title(),
+                diaryCreateRequest.content(),
+                Category.findCategory(diaryCreateRequest.category()),
+                username,
+                password
+        );
         return ResponseEntity.ok(SuccessResponse.of(SUCCESS_CREATE_DIARY));
     }
 
@@ -64,6 +71,7 @@ public class DiaryController {
         return ResponseEntity.ok().body(diaryListResponse);
     }
 
+    // 일기 삭제
     @DeleteMapping("/diary/{diaryId}")
     @CheckUserAuth
     public ResponseEntity<SuccessResponse> deleteDiary(
@@ -75,6 +83,7 @@ public class DiaryController {
         return ResponseEntity.ok(SuccessResponse.of(SUCCESS_DELETE_DIARY));
     }
 
+    // 일기 수정
     @PatchMapping("/diary/{diaryId}")
     @CheckUserAuth
     public ResponseEntity<SuccessResponse> updateDiary(
@@ -83,7 +92,7 @@ public class DiaryController {
             @RequestHeader(PASSWORD_HEADER) String password,
             @RequestBody DiaryUpdateRequest diaryUpdateRequest
     ) {
-        diaryService.updateDiary(diaryId, diaryUpdateRequest, username, password);
+        diaryService.updateDiary(diaryId, diaryUpdateRequest.content(), username, password);
         return ResponseEntity.ok(SuccessResponse.of(SUCCESS_UPDATE_DIARY));
     }
 
